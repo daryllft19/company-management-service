@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/react-hooks';
-import { Alert, Modal, Button, InputGroup, FormControl } from 'react-bootstrap';
+import { Spinner, Alert, Modal, Button, InputGroup, FormControl } from 'react-bootstrap';
 
 import GqlStatement from 'nfgraphql';
 
 const EditModal = (props) => {
   const [modalShow, setModalShow] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const [alertShow, setAlertShow] = useState(false);
   const [alertMsg, setAlertMsg] = useState('');
@@ -26,12 +27,15 @@ const EditModal = (props) => {
     
     if ( first_name && last_name && position) {
       handleAlertClose();
-      console.log({id: props.data.id, first_name, last_name, position});
+      setBusy(true);
       props.editEmployee({ id: props.data.id, first_name, last_name, position })
         .catch(() => {
           setAlertMsg('Incorrect input!');
           handleAlertOpen();
         })
+        .finally(() => {
+          setBusy(false);
+        });
     } else {
       setAlertMsg('Missing details!');
       handleAlertOpen();
@@ -78,7 +82,17 @@ const EditModal = (props) => {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button onClick={ handleSave } variant="primary">Save changes</Button>
+          <Button onClick={ handleSave } variant="primary" disabled={ busy }>
+            <Spinner
+              hidden={ !busy }
+              as="span"
+              animation="grow"
+              size="sm"
+              role="status"
+              aria-hidden="true"
+            />
+            Save changes
+          </Button>
           <Button onClick={ handleModalClose } variant="secondary">Close</Button>
         </Modal.Footer>
       </Modal>

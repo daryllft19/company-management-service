@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/react-hooks';
-import { Modal, Button, InputGroup, FormControl } from 'react-bootstrap';
+import { Spinner, Modal, Button, InputGroup, FormControl } from 'react-bootstrap';
 
 import GqlStatement from 'nfgraphql';
 
 const DeleteModal = (props) => {
   const [modalShow, setModalShow] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const deleteModalRef = useRef(null);
 
@@ -15,7 +16,11 @@ const DeleteModal = (props) => {
     const deleteMe = deleteModalRef.current.value;
 
     if (deleteMe === 'delete me') {
+      setBusy(true);
       props.deleteEmployee({ id: props.data.id })
+      .finally(() => {
+        setBusy(false);
+      });
     }
   }
 
@@ -46,7 +51,17 @@ const DeleteModal = (props) => {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button onClick={ handleDelete } variant="danger">Delete</Button>
+          <Button onClick={ handleDelete } variant="danger" disabled={ busy }>
+            <Spinner
+              hidden={ !busy }
+              as="span"
+              animation="grow"
+              size="sm"
+              role="status"
+              aria-hidden="true"
+            />
+            Delete
+          </Button>
           <Button onClick={ handleModalClose } variant="secondary">Close</Button>
         </Modal.Footer>
       </Modal>

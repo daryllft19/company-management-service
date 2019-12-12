@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/react-hooks';
-import { Alert, Modal, Button, InputGroup, FormControl } from 'react-bootstrap';
+import { Spinner, Alert, Modal, Button, InputGroup, FormControl } from 'react-bootstrap';
 
 import GqlStatement from 'nfgraphql';
 
 const AddModal = (props) => {
   const [modalShow, setModalShow] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const [alertShow, setAlertShow] = useState(false);
   const [alertMsg, setAlertMsg] = useState('');
@@ -26,10 +27,14 @@ const AddModal = (props) => {
     
     if ( name && address) {
       handleAlertClose();
+      setBusy(true);
       props.createCompany({ name, address, description })
         .catch((err) => {
           setAlertMsg('Incorrect input!');
           handleAlertOpen();
+        })
+        .finally(() => {
+          setBusy(false);
         })
     } else {
       setAlertMsg('Missing details!');
@@ -77,7 +82,17 @@ const AddModal = (props) => {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button onClick={ handleSave } variant="primary">Save changes</Button>
+          <Button onClick={ handleSave } variant="primary" disabled={ busy }>
+            <Spinner
+              hidden={ !busy }
+              as="span"
+              animation="grow"
+              size="sm"
+              role="status"
+              aria-hidden="true"
+            />
+            Save changes
+          </Button>
           <Button onClick={ handleModalClose } variant="secondary">Close</Button>
         </Modal.Footer>
       </Modal>
