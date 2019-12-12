@@ -18,14 +18,38 @@ const Company = () => {
   let [ companies, setCompanies ] = useState([]); 
   let [ addModalShow, setAddModalShow ] = useState(false); 
 
+  const [ createCompany ] = useMutation(GqlStatement.Company.CREATE_COMPANY);
   const [ deleteCompany ] = useMutation(GqlStatement.Company.DELETE_COMPANY);
   const queryCompaniesResult = useQuery(GqlStatement.Company.QUERY_COMPANIES,
     {
       onCompleted(data) {
-        setCompanies(companies);
+        setCompanies(data.companies);
       }
     }
   );
+
+  const createCompanyParent = ({ name, address, description }) => {
+    return createCompany({
+      variables: {
+        name,
+        address,
+        description
+      },
+      update: store => {
+        const data = store.readQuery({
+          query: GqlStatement.Company.QUERY_COMPANIES
+        })
+
+        queryCompaniesResult.refetch()
+        .then((res) => {
+          setCompanies(res.data.companies);
+        });
+      }
+    })
+    .then((res) => {
+      setAddModalShow(false);
+    })
+  }
 
   let display;
   if (queryCompaniesResult.loading) {
@@ -54,7 +78,7 @@ const Company = () => {
       </tbody>
   } else {
     display = <tbody>
-        {queryCompaniesResult.data.companies.map(({ id, name, address, description}) => (
+        {companies.map(({ id, name, address, description}) => (
           <tr key={ id }>
             <td>{ id }</td>
             <td><Link to={`/company/${id}`}>{ name }</Link></td>
@@ -62,33 +86,29 @@ const Company = () => {
             <td>{ description || 'None' }</td>
             <td>
               <a href='#' onClick={ e => {
-                setAddModalShow(true);
-              }}><FontAwesomeIcon icon='edit'/></a>
+              }}>
+                <FontAwesomeIcon icon='edit'/>
+              </a>
               <a href='#' onClick={ e => {
-                // deleteCompany({
-                //   variables: { id: parseInt(id) },
-                //   update: store => {
-
-                //     const data = store.readQuery({
-                //       query: GqlStatement.Company.QUERY_COMPANIES
-                //     })
-
-                //     store.writeQuery({
-                //       query: GqlStatement.Company.QUERY_COMPANIES,
-                //       data: {
-                //      		companies: data.companies.filter(c => c.id !== id)	
-                //       }
-                //     })
-                //   }
-                // })
+                deleteCompany({
+                  variables: { id: parseInt(id) },
+                })
+                .then(() => {
+                  queryCompaniesResult.refetch()
+                  .then((res) => {
+                    setCompanies(res.data.companies);
+                  });
+                })
               }}><FontAwesomeIcon icon='trash'/></a>
             </td>
           </tr>
         ))}
         <tr>
           <td colSpan={5}>
-            <a href='#'>
-              <FontAwesomeIcon icon='user-plus'/>
+            <a href='#' onClick={ e => {
+              setAddModalShow(true);
+            }}>
+              <FontAwesomeIcon icon='plus-square'/>
               <span>
                 Add Company 
               </span>
@@ -114,7 +134,7 @@ const Company = () => {
         </thead>
         { display }
       </Table>
-      <AddModal show={ addModalShow }/>
+      <AddModal modalShow={ addModalShow } createCompany={ createCompanyParent }/>
     </Container>
   );
 }

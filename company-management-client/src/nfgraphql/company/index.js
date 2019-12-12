@@ -29,8 +29,8 @@ const CREATE_COMPANY = gql`
   mutation AddCompany(
     $name: String!,
     $description: String!,
-    $address: String!)
-  {
+    $address: String!
+  ) {
     createCompany(input: {
       data: {
         name: $name,
@@ -38,11 +38,37 @@ const CREATE_COMPANY = gql`
         address: $address
       }
     }) {
-      name
-      descrption
-      address
+      company {
+        name
+        description
+        address
+      }
     }
   }  
+`;
+
+const UPDATE_COMPANY = gql`
+  query UpdateCompany(
+    $id: ID!,
+    $name: String,
+    $description: String
+    $address: String
+  ) {
+    updateCompany(input: {
+      where: {
+        id: $id,
+      },
+      data: {
+        name: $name,
+        description: $description,
+        address: $address
+      }
+    }) {
+      name
+      description
+      address
+    }
+  }
 `;
 
 const DELETE_COMPANY = gql`
