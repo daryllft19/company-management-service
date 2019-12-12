@@ -14,7 +14,7 @@ const AddModal = (props) => {
   const addModalAddressRef = useRef(null);
   const addModalDescriptionRef = useRef(null);
 
-  const handleModalClose = () => setModalShow(false);
+  const handleModalClose = () => props.handleAddModalClose();
 
   const handleAlertOpen = () => setAlertShow(true);
   const handleAlertClose = () => setAlertShow(false);
@@ -27,7 +27,7 @@ const AddModal = (props) => {
     if ( name && address) {
       handleAlertClose();
       props.createCompany({ name, address, description })
-        .catch(() => {
+        .catch((err) => {
           setAlertMsg('Incorrect input!');
           handleAlertOpen();
         })
@@ -78,7 +78,7 @@ const AddModal = (props) => {
 
         <Modal.Footer>
           <Button onClick={ handleSave } variant="primary">Save changes</Button>
-          <Button variant="secondary">Close</Button>
+          <Button onClick={ handleModalClose } variant="secondary">Close</Button>
         </Modal.Footer>
       </Modal>
     </>

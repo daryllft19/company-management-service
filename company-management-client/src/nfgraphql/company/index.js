@@ -48,11 +48,11 @@ const CREATE_COMPANY = gql`
 `;
 
 const UPDATE_COMPANY = gql`
-  query UpdateCompany(
+  mutation UpdateCompany (
     $id: ID!,
-    $name: String,
-    $description: String
-    $address: String
+    $name: String!,
+    $description: String!,
+    $address: String!
   ) {
     updateCompany(input: {
       where: {
@@ -64,9 +64,11 @@ const UPDATE_COMPANY = gql`
         address: $address
       }
     }) {
-      name
-      description
-      address
+      company {
+        name
+        description
+        address
+      }
     }
   }
 `;
@@ -92,5 +94,6 @@ export default {
   QUERY_COMPANIES,
   QUERY_COMPANY,
   CREATE_COMPANY,
+  UPDATE_COMPANY,
   DELETE_COMPANY
 }

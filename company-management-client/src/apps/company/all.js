@@ -1,6 +1,6 @@
 import React, { useState, Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Table, Container } from 'react-bootstrap';
+import { Button, Table, Container, Toast } from 'react-bootstrap';
 import { connect } from "react-redux";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -11,14 +11,27 @@ import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { useMutation, useQuery } from '@apollo/react-hooks';
 import GqlStatement from 'nfgraphql';
-import AddModal from 'apps/company/components/add-modal.js';
+import AddModal from 'apps/company/components/add-company-modal.js';
+import EditModal from 'apps/company/components/edit-company-modal.js';
+import DeleteModal from 'apps/company/components/delete-company-modal.js';
 
 // class Company extends Component {
 const Company = () => {
   let [ companies, setCompanies ] = useState([]); 
   let [ addModalShow, setAddModalShow ] = useState(false); 
 
+  let [ editModalShow, setEditModalShow ] = useState(false); 
+  let [ editData, setEditData ] = useState({}); 
+
+  let [ deleteModalShow, setDeleteModalShow ] = useState(false); 
+  let [ deleteData, setDeleteData ] = useState({}); 
+
+  let [ toastShow, setToastShow ] = useState(false); 
+  let [ toastTitle, setToastTitle ] = useState(''); 
+  let [ toastMsg, setToastMsg ] = useState(''); 
+
   const [ createCompany ] = useMutation(GqlStatement.Company.CREATE_COMPANY);
+  const [ updateCompany ] = useMutation(GqlStatement.Company.UPDATE_COMPANY);
   const [ deleteCompany ] = useMutation(GqlStatement.Company.DELETE_COMPANY);
   const queryCompaniesResult = useQuery(GqlStatement.Company.QUERY_COMPANIES,
     {
@@ -28,114 +41,183 @@ const Company = () => {
     }
   );
 
+  const handleAddModalCloseParent = () => setAddModalShow(false);
+  const handleEditModalCloseParent = () => setEditModalShow(false);
+  const handleDeleteModalCloseParent = () => setDeleteModalShow(false);
+
   const createCompanyParent = ({ name, address, description }) => {
     return createCompany({
       variables: {
         name,
         address,
         description
-      },
-      update: store => {
-        const data = store.readQuery({
-          query: GqlStatement.Company.QUERY_COMPANIES
-        })
-
-        queryCompaniesResult.refetch()
-        .then((res) => {
-          setCompanies(res.data.companies);
-        });
       }
     })
     .then((res) => {
+      queryCompaniesResult.refetch()
+      .then((res) => {
+        setCompanies(res.data.companies);
+      });
+      setToastTitle('Successful');
+      setToastMsg(`Added company ${res.data.createCompany.company.name}!`);
+      setToastShow(true);
       setAddModalShow(false);
+    })
+  }
+
+  const editCompanyParent = ({ id, name, address, description }) => {
+    return updateCompany({
+      variables: {
+        id,
+        name,
+        address,
+        description
+      }
+    })
+    .then((res) => {
+      queryCompaniesResult.refetch()
+      .then((res) => {
+        setCompanies(res.data.companies);
+      });
+
+      setToastShow(true);
+      setToastTitle('Successful');
+      setToastMsg(`Edited company ${res.data.updateCompany.company.name}!`);
+      setEditModalShow(false);
+    })
+  }
+
+  const deleteCompanyParent = ({ id }) => {
+    return deleteCompany({
+      variables: {
+        id: parseInt(id)
+      }
+    })
+    .then((res) => {
+      queryCompaniesResult.refetch()
+      .then((res) => {
+        setCompanies(res.data.companies);
+      });
+
+      setToastShow(true);
+      setToastTitle('Successful');
+      setToastMsg(`Deleted company ${res.data.deleteCompany.company.name}!`);
+      setDeleteModalShow(false);
     })
   }
 
   let display;
   if (queryCompaniesResult.loading) {
     display = <tbody>
-        <tr>
-          <td colSpan={5}>
+        <tr className='d-flex'>
+          <th className='col-12'>
             <p>Loading...</p>
-          </td>
+          </th>
         </tr>
       </tbody>
   } else if (queryCompaniesResult.error) {
     display = <tbody>
-        <tr>
-          <td colSpan={5}>
+        <tr className='d-flex'>
+          <th className='col-12'>
             <p>Oops. An error occurred</p>
-          </td>
+          </th>
         </tr>
       </tbody>
   } else if ( queryCompaniesResult.data.companies.length === 0) {
     display = <tbody>
-        <tr>
-          <td colSpan={5}>
+        <tr className='d-flex'>
+          <th className='col-12'>
             <p>None</p>
-          </td>
+          </th>
         </tr>
       </tbody>
   } else {
-    display = <tbody>
+    display = <tbody className='d-block' style={{height: '60rem'}}>
         {companies.map(({ id, name, address, description}) => (
-          <tr key={ id }>
-            <td>{ id }</td>
-            <td><Link to={`/company/${id}`}>{ name }</Link></td>
-            <td>{ address }</td>
-            <td>{ description || 'None' }</td>
-            <td>
-              <a href='#' onClick={ e => {
+          <tr className='d-flex' key={ id }>
+            <th className='col-1'>{ id }</th>
+            <th className='col-2'><Link to={`/company/${id}`}>{ name }</Link></th>
+            <th className='col-3'>{ address }</th>
+            <th className='col-5'>{ description || 'None' }</th>
+            <th className='col-1'>
+              <a href='#' className='m-2' onClick={ e => {
+                setEditData({
+                  id,
+                  name,
+                  address,
+                  description
+                });
+                setEditModalShow(true);
               }}>
                 <FontAwesomeIcon icon='edit'/>
               </a>
-              <a href='#' onClick={ e => {
-                deleteCompany({
-                  variables: { id: parseInt(id) },
-                })
-                .then(() => {
-                  queryCompaniesResult.refetch()
-                  .then((res) => {
-                    setCompanies(res.data.companies);
-                  });
-                })
-              }}><FontAwesomeIcon icon='trash'/></a>
-            </td>
+
+              <a href='#' className='m-2' onClick={ e => {
+                setDeleteData({
+                  id,
+                  name,
+                  address,
+                  description
+                });
+                setDeleteModalShow(true);
+              }}>
+                <FontAwesomeIcon icon='trash'/>
+              </a>
+            </th>
           </tr>
         ))}
-        <tr>
-          <td colSpan={5}>
-            <a href='#' onClick={ e => {
-              setAddModalShow(true);
-            }}>
-              <FontAwesomeIcon icon='plus-square'/>
-              <span>
-                Add Company 
-              </span>
-            </a>
-          </td>
-        </tr>
         </tbody>
   }
 
   return (
-    <Container>
-      <h1>Company</h1>
-      <h3>Welcome to NF Company Management System</h3>
-      <Table striped responsive>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Address</th>
-            <th>Description</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        { display }
-      </Table>
-      <AddModal modalShow={ addModalShow } createCompany={ createCompanyParent }/>
-    </Container>
+    <>
+      <Container>
+        <h2>Welcome to NF Company Management System</h2>
+        <Button className='m-5' onClick={ e => {
+          setAddModalShow(true);
+        }}>
+          <FontAwesomeIcon className='mr-2 ml-2' icon='plus-square'/>
+          <span>
+            Add Company 
+          </span>
+        </Button>
+        <Table striped responsive bordered>
+          <thead>
+            <tr className='d-flex'>
+              <th className='col-1'>ID</th>
+              <th className='col-2'>Name</th>
+              <th className='col-3'>Address</th>
+              <th className='col-5'>Description</th>
+              <th className='col-1'>Actions</th>
+            </tr>
+          </thead>
+          { display }
+        </Table>
+        <AddModal
+          modalShow={ addModalShow }
+          createCompany={ createCompanyParent }
+          handleAddModalClose={ handleAddModalCloseParent } 
+        />
+        <EditModal
+          modalShow={ editModalShow }
+          editCompany={ editCompanyParent }
+          handleEditModalClose={ handleEditModalCloseParent } 
+          data={ editData }
+        />
+        <DeleteModal
+          modalShow={ deleteModalShow }
+          deleteCompany={ deleteCompanyParent }
+          handleDeleteModalClose={ handleDeleteModalCloseParent } 
+          data={ deleteData }
+        />
+      </Container>
+      <Toast onClose={() => setToastShow(false)} show={ toastShow } delay={3000} className="mb-5 ml-5 w-50 bg-success float-right fixed-bottom" autohide>
+        <Toast.Header>
+          <strong className="mr-auto">{ toastTitle }</strong>
+        </Toast.Header>
+        <Toast.Body><strong>{ toastMsg }</strong></Toast.Body>
+      </Toast>
+    </>
   );
 }
 const  mapStateToProps = state => {

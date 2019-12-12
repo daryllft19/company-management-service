@@ -4,29 +4,29 @@ import { Alert, Modal, Button, InputGroup, FormControl } from 'react-bootstrap';
 
 import GqlStatement from 'nfgraphql';
 
-const AddModal = (props) => {
+const EditModal = (props) => {
   const [modalShow, setModalShow] = useState(false);
 
   const [alertShow, setAlertShow] = useState(false);
   const [alertMsg, setAlertMsg] = useState('');
 
-  const addModalNameRef = useRef(null);
-  const addModalAddressRef = useRef(null);
-  const addModalDescriptionRef = useRef(null);
+  const editModalNameRef = useRef(null);
+  const editModalAddressRef = useRef(null);
+  const editModalDescriptionRef = useRef(null);
 
-  const handleModalClose = () => setModalShow(false);
+  const handleModalClose = () => props.handleEditModalClose();
 
   const handleAlertOpen = () => setAlertShow(true);
   const handleAlertClose = () => setAlertShow(false);
 
   const handleSave = () => {
-    const name = addModalNameRef.current.value;
-    const address = addModalAddressRef.current.value;
-    const description = addModalDescriptionRef.current.value;
+    const name = editModalNameRef.current.value;
+    const address = editModalAddressRef.current.value;
+    const description = editModalDescriptionRef.current.value;
     
     if ( name && address) {
       handleAlertClose();
-      props.createCompany({ name, address, description })
+      props.editCompany({ id: props.data.id, name, address, description })
         .catch(() => {
           setAlertMsg('Incorrect input!');
           handleAlertOpen();
@@ -45,7 +45,7 @@ const AddModal = (props) => {
     <>
       <Modal show={ modalShow } onHide={ handleModalClose } animation={ false } backdrop={ 'static' } centered>
         <Modal.Header closeButton>
-          <Modal.Title>Add a Company</Modal.Title>
+          <Modal.Title>Editing { props.data.name }</Modal.Title>
         </Modal.Header>
 
         <Alert show={ alertShow } variant="danger" onClose={ handleAlertClose } dismissible transition={ null }>
@@ -60,29 +60,29 @@ const AddModal = (props) => {
             <InputGroup.Prepend>
               <InputGroup.Text>Name</InputGroup.Text>
             </InputGroup.Prepend>
-            <FormControl required ref={ addModalNameRef } placeholder="Company Name"/>
+            <FormControl required ref={ editModalNameRef } placeholder="Company Name"defaultValue={ props.data.name }/>
           </InputGroup>
           <InputGroup className="mb-3">
             <InputGroup.Prepend>
               <InputGroup.Text>Address</InputGroup.Text>
             </InputGroup.Prepend>
-            <FormControl required ref={ addModalAddressRef } placeholder="Company Address"/>
+            <FormControl required ref={ editModalAddressRef } placeholder="Company Address" defaultValue={ props.data.address }/>
           </InputGroup>
           <InputGroup className="mb-3">
             <InputGroup.Prepend>
               <InputGroup.Text>Description</InputGroup.Text>
             </InputGroup.Prepend>
-            <FormControl ref={ addModalDescriptionRef } placeholder="Company Description" as="textarea" rows="3"/>
+            <FormControl ref={ editModalDescriptionRef } placeholder="Company Description" as="textarea" rows="3" defaultValue={ props.data.description }/>
           </InputGroup>
         </Modal.Body>
 
         <Modal.Footer>
           <Button onClick={ handleSave } variant="primary">Save changes</Button>
-          <Button variant="secondary">Close</Button>
+          <Button onClick={ handleModalClose } variant="secondary">Close</Button>
         </Modal.Footer>
       </Modal>
     </>
   )
 }
 
-export default AddModal;
+export default EditModal;

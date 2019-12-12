@@ -10,7 +10,7 @@ class Main extends Component {
     })
 
     return (
-      <Navbar bg="dark" expand="lg" variant="dark">
+      <Navbar bg="dark" expand="lg" variant="dark" sticky="top">
         <Navbar.Brand href="/">NF CMS</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
