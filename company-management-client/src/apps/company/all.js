@@ -226,5 +226,4 @@ const  mapStateToProps = state => {
   }
 };
 
-// export default Company
 export default Company;

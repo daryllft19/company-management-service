@@ -14,6 +14,7 @@ const QUERY_COMPANIES = gql`
 const QUERY_COMPANY = gql`
   query QueryCompany($id: ID!) {
     company( id: $id ) {
+      id
       name
       employees {
         id
