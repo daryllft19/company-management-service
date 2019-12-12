@@ -4,13 +4,11 @@ import { Route } from 'react-router';
 
 // Routes
 import AllEmployee from './all.js';
-import OneEmployee from './one.js';
 
 function EmployeeRouter() {
   return (
     <Router>
       <Route path="/employee" component={ AllEmployee }/>
-      <Route path="/employee/:id" component={ OneEmployee }/>
     </Router>
   );
 }

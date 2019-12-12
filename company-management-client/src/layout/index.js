@@ -5,8 +5,10 @@ import { Nav, Navbar } from 'react-bootstrap';
 class Main extends Component {
   render(){
     const navList = Object.keys(apps.services).map(route => {
+      console.log(route);
       if ( route !== 'home' )
         return <Nav.Link href={ `/${route}` } key={ route }>{ `${route[0].toUpperCase()}${route.slice(1)}` }</Nav.Link>;
+      return null;
     })
 
     return (

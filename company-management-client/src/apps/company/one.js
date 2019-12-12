@@ -1,11 +1,7 @@
-import React, { useState, Component } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
 import { Button, Table, Container, Toast } from 'react-bootstrap';
-import { connect } from "react-redux";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import gql from 'graphql-tag';
-import { Query } from 'react-apollo';
 import { useMutation, useQuery } from '@apollo/react-hooks';
 import GqlStatement from 'nfgraphql';
 import AddModal from 'apps/company/components/add-employee-modal.js';
@@ -143,7 +139,7 @@ const Company = (props) => {
             <th className='col-3'>{ last_name }</th>
             <th className='col-4'>{ position }</th>
             <th className='col-1'>
-              <a href='#' className='m-2' onClick={ e => {
+              <Button className='ml-1 mr-1' variant='warning' onClick={ e => {
                 setEditData({
                   id,
                   first_name,
@@ -153,9 +149,9 @@ const Company = (props) => {
                 setEditModalShow(true);
               }}>
                 <FontAwesomeIcon icon='edit'/>
-              </a>
+              </Button>
 
-              <a href='#' className='m-2' onClick={ e => {
+              <Button className='ml-1 mr-1' variant='danger' onClick={ e => {
                 setDeleteData({
                   id,
                   first_name,
@@ -165,7 +161,7 @@ const Company = (props) => {
                 setDeleteModalShow(true);
               }}>
                 <FontAwesomeIcon icon='trash'/>
-              </a>
+              </Button>
             </th>
           </tr>
         ))}

@@ -5,13 +5,11 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import { Provider } from 'react-redux';
 import { ApolloProvider } from '@apollo/react-hooks';
-import ApolloClient, { gql } from 'apollo-boost';
-import redux from './redux';
+import ApolloClient from 'apollo-boost';
 
 const client = new ApolloClient({
-  uri: 'http://localhost:1337/graphql',
+  uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
   headers: {
     Authorization: `Bearer ${process.env.REACT_APP_STRAPI_TOKEN}`
   }

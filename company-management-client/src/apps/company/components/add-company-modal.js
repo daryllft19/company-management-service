@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useMutation } from '@apollo/react-hooks';
 import { Spinner, Alert, Modal, Button, InputGroup, FormControl } from 'react-bootstrap';
-
-import GqlStatement from 'nfgraphql';
 
 const AddModal = (props) => {
   const [modalShow, setModalShow] = useState(false);

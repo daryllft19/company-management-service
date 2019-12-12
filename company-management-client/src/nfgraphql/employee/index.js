@@ -1,30 +1,5 @@
 import gql from 'graphql-tag';
 
-const QUERY_COMPANIES = gql`
-  query {
-    companies {
-      id
-      name
-      address
-      description
-    }
-  }
-`;
-
-const QUERY_COMPANY = gql`
-  query QueryCompany($id: ID!) {
-    company( id: $id ) {
-      name
-      employees {
-        id
-        first_name
-        last_name
-        position
-      }
-    }
-  }
-`;
-
 const CREATE_EMPLOYEE = gql`
   mutation AddEmployee(
     $first_name: String!,

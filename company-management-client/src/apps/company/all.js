@@ -1,21 +1,14 @@
-import React, { useState, Component } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Table, Container, Toast } from 'react-bootstrap';
-import { connect } from "react-redux";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import { fetchCompanies } from "redux/actions/company";
-import { getCompanies } from "redux/selectors/company";
-
-import gql from 'graphql-tag';
-import { Query } from 'react-apollo';
 import { useMutation, useQuery } from '@apollo/react-hooks';
 import GqlStatement from 'nfgraphql';
 import AddModal from 'apps/company/components/add-company-modal.js';
 import EditModal from 'apps/company/components/edit-company-modal.js';
 import DeleteModal from 'apps/company/components/delete-company-modal.js';
 
-// class Company extends Component {
 const Company = () => {
   let [ companies, setCompanies ] = useState([]); 
   let [ addModalShow, setAddModalShow ] = useState(false); 
@@ -140,7 +133,7 @@ const Company = () => {
             <th className='col-3'>{ address }</th>
             <th className='col-5'>{ description || 'None' }</th>
             <th className='col-1'>
-              <a href='#' className='m-2' onClick={ e => {
+              <Button className='ml-1 mr-1' variant='warning' onClick={ e => {
                 setEditData({
                   id,
                   name,
@@ -150,9 +143,9 @@ const Company = () => {
                 setEditModalShow(true);
               }}>
                 <FontAwesomeIcon icon='edit'/>
-              </a>
+              </Button>
 
-              <a href='#' className='m-2' onClick={ e => {
+              <Button className='ml-1 mr-1' variant='danger' onClick={ e => {
                 setDeleteData({
                   id,
                   name,
@@ -162,7 +155,7 @@ const Company = () => {
                 setDeleteModalShow(true);
               }}>
                 <FontAwesomeIcon icon='trash'/>
-              </a>
+              </Button>
             </th>
           </tr>
         ))}
