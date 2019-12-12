@@ -8,6 +8,14 @@ import Main from './layout';
 import CompanyRouter from './apps/company';
 import EmployeeRouter from './apps/employee';
 
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faTrash, faEdit, faUserPlus } from '@fortawesome/free-solid-svg-icons'
+
+library.add(
+  faTrash,
+  faEdit,
+  faUserPlus
+)
 
 function App() {
   return (
