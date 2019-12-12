@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Table, Container } from 'react-bootstrap';
 import { connect } from "react-redux";
@@ -9,99 +9,114 @@ import { getCompanies } from "redux/selectors/company";
 
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
+import { useMutation, useQuery } from '@apollo/react-hooks';
+import GqlStatement from 'nfgraphql';
+import AddModal from 'apps/company/components/add-modal.js';
 
-class Company extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      companies: []
-    }
-  }
-  handleEditCompany = (e, id) => {
-    e.preventDefault()
-    console.log('edit', id);
-  }
-  handleDeleteCompany = (e, id) => {
-    e.preventDefault()
-    console.log('delete', id);
-  }
-  render(){
-    const GET_COMPANIES = gql`
-      {
-        companies {
-          id
-          name
-          address
-          description
-        }
+// class Company extends Component {
+const Company = () => {
+  let [ companies, setCompanies ] = useState([]); 
+  let [ addModalShow, setAddModalShow ] = useState(false); 
+
+  const [ deleteCompany ] = useMutation(GqlStatement.Company.DELETE_COMPANY);
+  const queryCompaniesResult = useQuery(GqlStatement.Company.QUERY_COMPANIES,
+    {
+      onCompleted(data) {
+        setCompanies(companies);
       }
-    `;
+    }
+  );
 
-    return (
-      <Container>
-        <h1>Company</h1>
-        <h3>Welcome to NF Company Management System</h3>
-        <Table striped responsive>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Address</th>
-              <th>Description</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <Query query={GET_COMPANIES}>
-            {result => {
-              if (result.loading) return (
-                <tbody>
-                  <tr>
-                    <td colSpan={5}>
-                      <p>Loading...</p>
-                    </td>
-                  </tr>
-                </tbody>
-              );
-              if (result.error) return (
-                <tbody>
-                  <tr>
-                    <td colSpan={5}>
-                      <p>Oops. An error occurred</p>
-                    </td>
-                  </tr>
-                </tbody>
-              );
-              if (result.data.companies.length === 0) return (
-                <tbody>
-                  <tr>
-                    <td colSpan={5}>
-                      <p>None</p>
-                    </td>
-                  </tr>
-                </tbody>
-              )
-              return (
-                <tbody>
-                {result.data.companies.map(({ id, name, address, description}) => (
-                  <tr key={ id }>
-                    <td>{ id }</td>
-                    <td><Link to={`/company/${id}`}>{ name }</Link></td>
-                    <td>{ address }</td>
-                    <td>{ description || 'None' }</td>
-                    <td>
-                      <a href='#' onClick={ e => this.handleEditCompany(e, id) }><FontAwesomeIcon icon='edit'/></a>
-                      <a href='#' onClick={ e => this.handleDeleteCompany(e, id) }><FontAwesomeIcon icon='trash'/></a>
-                    </td>
-                  </tr>
-                ))}
-                </tbody>
-              )
-            }}
-          </Query>
-        </Table>
-      </Container>
-    );
+  let display;
+  if (queryCompaniesResult.loading) {
+    display = <tbody>
+        <tr>
+          <td colSpan={5}>
+            <p>Loading...</p>
+          </td>
+        </tr>
+      </tbody>
+  } else if (queryCompaniesResult.error) {
+    display = <tbody>
+        <tr>
+          <td colSpan={5}>
+            <p>Oops. An error occurred</p>
+          </td>
+        </tr>
+      </tbody>
+  } else if ( queryCompaniesResult.data.companies.length === 0) {
+    display = <tbody>
+        <tr>
+          <td colSpan={5}>
+            <p>None</p>
+          </td>
+        </tr>
+      </tbody>
+  } else {
+    display = <tbody>
+        {queryCompaniesResult.data.companies.map(({ id, name, address, description}) => (
+          <tr key={ id }>
+            <td>{ id }</td>
+            <td><Link to={`/company/${id}`}>{ name }</Link></td>
+            <td>{ address }</td>
+            <td>{ description || 'None' }</td>
+            <td>
+              <a href='#' onClick={ e => {
+                setAddModalShow(true);
+              }}><FontAwesomeIcon icon='edit'/></a>
+              <a href='#' onClick={ e => {
+                // deleteCompany({
+                //   variables: { id: parseInt(id) },
+                //   update: store => {
+
+                //     const data = store.readQuery({
+                //       query: GqlStatement.Company.QUERY_COMPANIES
+                //     })
+
+                //     store.writeQuery({
+                //       query: GqlStatement.Company.QUERY_COMPANIES,
+                //       data: {
+                //      		companies: data.companies.filter(c => c.id !== id)	
+                //       }
+                //     })
+                //   }
+                // })
+              }}><FontAwesomeIcon icon='trash'/></a>
+            </td>
+          </tr>
+        ))}
+        <tr>
+          <td colSpan={5}>
+            <a href='#'>
+              <FontAwesomeIcon icon='user-plus'/>
+              <span>
+                Add Company 
+              </span>
+            </a>
+          </td>
+        </tr>
+        </tbody>
   }
+
+  return (
+    <Container>
+      <h1>Company</h1>
+      <h3>Welcome to NF Company Management System</h3>
+      <Table striped responsive>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Description</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        { display }
+      </Table>
+      <AddModal show={ addModalShow }/>
+    </Container>
+  );
 }
 const  mapStateToProps = state => {
   return {

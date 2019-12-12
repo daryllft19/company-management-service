@@ -1,7 +1,18 @@
 import gql from 'graphql-tag';
 
-const GET_COMPANY = gql`
-  query getCompany($id: ID!) {
+const QUERY_COMPANIES = gql`
+  query {
+    companies {
+      id
+      name
+      address
+      description
+    }
+  }
+`;
+
+const QUERY_COMPANY = gql`
+  query QueryCompany($id: ID!) {
     company( id: $id ) {
       name
       employees {
@@ -14,6 +25,46 @@ const GET_COMPANY = gql`
   }
 `;
 
+const CREATE_COMPANY = gql`
+  mutation AddCompany(
+    $name: String!,
+    $description: String!,
+    $address: String!)
+  {
+    createCompany(input: {
+      data: {
+        name: $name,
+        description: $description,
+        address: $address
+      }
+    }) {
+      name
+      descrption
+      address
+    }
+  }  
+`;
+
+const DELETE_COMPANY = gql`
+  mutation DeleteCompany( $id: ID! )
+  {
+    deleteCompany(input: {
+      where: {
+        id: $id,
+      }
+    }) {
+      company {
+        name
+        description
+        address
+      }
+    }
+  }  
+`;
+
 export default {
-  GET_COMPANY
+  QUERY_COMPANIES,
+  QUERY_COMPANY,
+  CREATE_COMPANY,
+  DELETE_COMPANY
 }

@@ -3,16 +3,15 @@ import { Link } from 'react-router-dom';
 import { Table, Container } from 'react-bootstrap';
 import { Query } from 'react-apollo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import Gql from 'nfgraphql';
+import GqlStatement from 'nfgraphql';
 
 class Company extends Component {
   constructor(props) {
     super(props);
-    console.log(Gql);
   }
   render(){
     return (
-      <Query query={GET_COMPANY} variables={{ id: parseInt(this.props.match.params.id) }}>
+      <Query query={GqlStatement.Company.QUERY_COMPANY} variables={{ id: parseInt(this.props.match.params.id) }}>
         {result => {
           if (result.data)
             return (
