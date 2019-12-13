@@ -25,7 +25,6 @@ function App() {
         <Route path="/" component={ Main }/>
         <Route exact path="/" component={ apps.services.home }/>
         { CompanyRouter() }
-        { EmployeeRouter() }
       </Router>
     </div>
   );

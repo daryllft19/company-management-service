@@ -16,10 +16,21 @@ class Home extends Component {
   }
 }
 
+class Test extends Component {
+  render(){
+    return (
+      <Container>
+        { process.env.REACT_APP_GRAPHQL_ENDPOINT }
+        <h1>Test</h1>
+        <h3>Sample</h3>
+      </Container>
+    );
+  }
+}
+
 export default {
   services: {
     home: Home,
-    employee: Employee,
     company: Company 
   }
 }
